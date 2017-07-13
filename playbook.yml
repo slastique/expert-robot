@@ -1,0 +1,97 @@
+- hosts: all
+  vars:
+    myname: 'vagrant'
+    rbenv:
+      env: user
+      version: v1.1.1
+      default_ruby: 2.4.1
+      rubies:
+      - version: 2.4.1
+      rbenv_plugins:
+        name: "ruby-build"
+
+  roles:
+    - role: zzet.rbenv
+      rbenv_users:
+        ["{{ myname }}"]
+  tasks:
+    - name: Remove installed Docker
+      dnf:
+        name: "{{ item }}"
+        state: absent
+      with_items:
+        - docker
+        - docker-common
+        - docker-selinux
+        - docker-engine-selinux
+        - docker-engine
+      become: true
+
+    - name: Cleanup old Docker dirs
+      file:
+        path: /var/lib/docker/
+        state: absent
+      become: true
+
+    - name: Add Docker Repo
+      yum_repository:
+        baseurl: "https://download.docker.com/linux/fedora/docker-ce.repo"
+        enabled: yes
+        name: "docker-ce"
+        description: "Docker CE Repo"
+      become: true
+
+    - name: Update cache
+      shell: 'dnf makecache fast'
+      become: yes
+
+    - name: Create Docker Group
+      group:
+        name: docker
+        state: present
+      become: true
+
+    - name: Add me to docker group
+      user:
+        name: "{{ myname }}"
+        groups: docker
+        append: yes
+      become: true
+
+# что такое targeted?:)
+    - name: Disable Selinux for rkt
+      selinux:
+        state: permissive
+        policy: targeted
+      become: true
+
+    - name: Install required packages
+      dnf:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - make
+        - kernel-devel
+        - kernel-headers
+        - vagrant
+        - htop
+        - gnome-tweak-tool
+        - keepassx
+        - preload
+        - docker-ce
+        - rkt
+        - the_silver_searcher
+      become: true
+
+    - name: Start Docker on Boot
+      systemd:
+        name: docker
+        enabled: yes
+      become: true
+
+# Check it. I don't wanna download it many times
+    - name: Install Atom
+      dnf:
+        name: "https://atom.io/download/rpm"
+        state: present
+      become: true
