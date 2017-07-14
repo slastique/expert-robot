@@ -35,14 +35,16 @@
 
     - name: Add Docker Repo
       yum_repository:
-        baseurl: "https://download.docker.com/linux/fedora/docker-ce.repo"
+        baseurl: https://download.docker.com/linux/fedora/25/x86_64/stable
         enabled: yes
-        name: "docker-ce"
-        description: "Docker CE Repo"
+        name: docker-ce-stable
+        description: Docker CE Stable - $basearch
+        gpgcheck: yes
+        gpgkey: https://download.docker.com/linux/fedora/gpg
       become: true
 
     - name: Update cache
-      shell: 'dnf makecache fast'
+      shell: 'dnf makecache timer'
       become: yes
 
     - name: Create Docker Group
@@ -56,13 +58,6 @@
         name: "{{ myname }}"
         groups: docker
         append: yes
-      become: true
-
-# что такое targeted?:)
-    - name: Disable Selinux for rkt
-      selinux:
-        state: permissive
-        policy: targeted
       become: true
 
     - name: Install required packages
@@ -81,6 +76,13 @@
         - docker-ce
         - rkt
         - the_silver_searcher
+        - libselinux-python
+      become: true
+
+    - name: Disable Selinux for rkt
+      selinux:
+        state: permissive
+        policy: targeted
       become: true
 
     - name: Start Docker on Boot
@@ -89,9 +91,13 @@
         enabled: yes
       become: true
 
-# Check it. I don't wanna download it many times
     - name: Install Atom
+      get_url:
+        url: "https://atom.io/download/rpm"
+        dest: /tmp/atom.rpm
+
+    - name: upgrade all packages
       dnf:
-        name: "https://atom.io/download/rpm"
-        state: present
+        name: "*"
+        state: latest
       become: true
