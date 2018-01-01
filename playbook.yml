@@ -14,6 +14,7 @@
     - role: zzet.rbenv
       rbenv_users:
         ["{{ myname }}"]
+
   tasks:
     - name: Remove installed Docker
       dnf:
@@ -33,15 +34,42 @@
         state: absent
       become: true
 
-    - name: Add Docker Repo
+    - name: install dnf plugins
+      dnf:
+        name: dnf-plugins-core
+        state: present
+      become: true
+
+    - name: Add Docker Stable Repo
       yum_repository:
-        baseurl: https://download.docker.com/linux/fedora/25/x86_64/stable
+        baseurl: https://download.docker.com/linux/fedora/27/x86_64/stable
         enabled: yes
         name: docker-ce-stable
         description: Docker CE Stable - $basearch
         gpgcheck: yes
         gpgkey: https://download.docker.com/linux/fedora/gpg
       become: true
+
+    - name: Add Docker Edge Repo
+      yum_repository:
+        baseurl: https://download.docker.com/linux/fedora/27/x86_64/edge
+        enabled: yes
+        name: docker-ce-edge
+        description: Docker CE Edge - $basearch
+        gpgcheck: yes
+        gpgkey: https://download.docker.com/linux/fedora/gpg
+      become: true
+
+    # - name: Add VirtualBox Repo
+    #   yum_repository:
+    #     baseurl: http://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo
+    #     enabled: yes
+    #     name: virtualbox
+    #     description: virtualbox
+    #     gpgcheck: yes
+    #     repo_gpgcheck: yes
+    #     gpgkey: https://www.virtualbox.org/download/oracle_vbox.asc
+    #   become: true
 
     - name: Update cache
       shell: 'dnf makecache timer'
@@ -60,6 +88,12 @@
         append: yes
       become: true
 
+    - name: upgrade all packages
+      dnf:
+        name: "*"
+        state: latest
+      become: true
+
     - name: Install required packages
       dnf:
         name: "{{ item }}"
@@ -74,16 +108,11 @@
         - keepassx
         - preload
         - docker-ce
-        - rkt
         - the_silver_searcher
         - libselinux-python
         - dkms
-      become: true
-
-    - name: Disable Selinux for rkt
-      selinux:
-        state: permissive
-        policy: targeted
+        - vim
+        - zsh
       become: true
 
     - name: Start Docker on Boot
@@ -92,13 +121,24 @@
         enabled: yes
       become: true
 
-    - name: Install Atom
+    - name: Download Atom
       get_url:
-        url: "https://atom.io/download/rpm"
+        url: https://atom.io/download/rpm?channel=beta
         dest: /tmp/atom.rpm
 
-    - name: upgrade all packages
+    - name: Download Atom
+      get_url:
+        url: https://atom.io/download/rpm?channel=beta
+        dest: /tmp/atom.rpm
+
+    - name: Install atom
       dnf:
-        name: "*"
-        state: latest
+        name: /tmp/atom.rpm
+        state: present
+      become: true
+
+    - name: Install VirtualBox
+      dnf:
+        name: http://download.virtualbox.org/virtualbox/rpm/fedora/26/x86_64/VirtualBox-5.2-5.2.4_119785_fedora26-1.x86_64.rpm
+        state: present
       become: true
