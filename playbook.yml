@@ -1,6 +1,6 @@
-- hosts: all
+- hosts: 127.0.0.1
   vars:
-    myname: 'vagrant'
+    myname: 'rmamaev'
     rbenv:
       env: user
       version: v1.1.1
@@ -120,11 +120,6 @@
         name: docker
         enabled: yes
       become: true
-
-    - name: Download Atom
-      get_url:
-        url: https://atom.io/download/rpm?channel=beta
-        dest: /tmp/atom.rpm
 
     - name: Download Atom
       get_url:

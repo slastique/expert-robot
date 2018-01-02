@@ -3,10 +3,11 @@ Ansible roles to provision my laptop with Fedora 27
 
 ## Prerequisites
 
-sudo ln -s /usr/bin/python3 /usr/bin/python
+`sudo dnf install libselinux-python`
+add host to inventory file: `localhost ansible_connection=local ansible_user=rmamaev`
 
 ## How to run
-`ansible-playbook playbook.yml --extra-vars "name=YourUserName"`
+`ansible-playbook playbook.yml --ask-become-pass`
 
 ## How to test changes
 * `vagrant init fedora/27-cloud-base`
