@@ -52,6 +52,16 @@
 
     - name: Add Docker Edge Repo
       yum_repository:
+        baseurl: https://dl.yarnpkg.com/rpm/
+        enabled: yes
+        name: yarn-repo
+        description: Yarn repo
+        gpgcheck: yes
+        gpgkey: https://dl.yarnpkg.com/rpm/pubkey.gpg
+      become: true
+
+    - name: Add Yarn Repo
+      yum_repository:
         baseurl: https://download.docker.com/linux/fedora/27/x86_64/edge
         enabled: yes
         name: docker-ce-edge
@@ -114,6 +124,8 @@
         - vim
         - zsh
         - php
+        - nodejs
+        - yarn
       become: true
 
     - name: Start Docker on Boot
