@@ -126,6 +126,7 @@
         - php
         - nodejs
         - yarn
+        - python3-virtualenv
       become: true
 
     - name: Start Docker on Boot
