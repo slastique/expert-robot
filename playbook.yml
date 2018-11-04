@@ -1,12 +1,13 @@
 - hosts: 127.0.0.1
+  become: true
   vars:
     myname: 'rmamaev'
     rbenv:
       env: user
       version: v1.1.1
-      default_ruby: 2.4.1
+      default_ruby: 2.5.3
       rubies:
-      - version: 2.4.1
+      - version: 2.5.3
       rbenv_plugins:
         name: "ruby-build"
 
@@ -14,31 +15,30 @@
     - role: zzet.rbenv
       rbenv_users:
         ["{{ myname }}"]
-
+    - role: gantsign.oh-my-zsh
+      users:
+        - username: rmamaev
+        
   tasks:
     - name: Remove installed Docker
       dnf:
-        name: "{{ item }}"
-        state: absent
-      with_items:
-        - docker
-        - docker-common
-        - docker-selinux
-        - docker-engine-selinux
-        - docker-engine
-      become: true
+        name:
+          - docker
+          - docker-common
+          - docker-selinux
+          - docker-engine-selinux
+          - docker-engine
+        state: absent        
 
     - name: Cleanup old Docker dirs
       file:
         path: /var/lib/docker/
         state: absent
-      become: true
 
     - name: install dnf plugins
       dnf:
         name: dnf-plugins-core
         state: present
-      become: true
 
     - name: Add Docker Stable Repo
       yum_repository:
@@ -48,7 +48,6 @@
         description: Docker CE Stable - $basearch
         gpgcheck: yes
         gpgkey: https://download.docker.com/linux/fedora/gpg
-      become: true
 
     - name: Add Docker Edge Repo
       yum_repository:
@@ -58,7 +57,6 @@
         description: Yarn repo
         gpgcheck: yes
         gpgkey: https://dl.yarnpkg.com/rpm/pubkey.gpg
-      become: true
 
     - name: Add Yarn Repo
       yum_repository:
@@ -68,86 +66,71 @@
         description: Docker CE Edge - $basearch
         gpgcheck: yes
         gpgkey: https://download.docker.com/linux/fedora/gpg
-      become: true
-
-    # - name: Add VirtualBox Repo
-    #   yum_repository:
-    #     baseurl: http://download.virtualbox.org/virtualbox/rpm/fedora/virtualbox.repo
-    #     enabled: yes
-    #     name: virtualbox
-    #     description: virtualbox
-    #     gpgcheck: yes
-    #     repo_gpgcheck: yes
-    #     gpgkey: https://www.virtualbox.org/download/oracle_vbox.asc
-    #   become: true
 
     - name: Update cache
       shell: 'dnf makecache timer'
-      become: yes
 
     - name: Create Docker Group
       group:
         name: docker
         state: present
-      become: true
 
     - name: Add me to docker group
       user:
         name: "{{ myname }}"
         groups: docker
         append: yes
-      become: true
+
+    - name: "install VS Code repo"
+      yum_repository: 
+        baseurl: "https://packages.microsoft.com/yumrepos/vscode"
+        description: "Visual Studio Code repo"
+        file: vscode
+        gpgcheck: true
+        gpgkey: "https://packages.microsoft.com/keys/microsoft.asc"
+        name: code
 
     - name: upgrade all packages
       dnf:
         name: "*"
         state: latest
-      become: true
 
     - name: Install required packages
       dnf:
-        name: "{{ item }}"
+        name:
+          - make
+          - kernel-devel
+          - kernel-headers
+          - htop
+          - gnome-tweak-tool
+          - keepassx
+          - preload
+          - docker-ce
+          - the_silver_searcher
+          - libselinux-python
+          - dkms
+          - vim
+          - zsh
+          - php
+          - nodejs
+          - yarn
+          - python3-virtualenv
+          - code
+          - golang
         state: present
-      with_items:
-        - make
-        - kernel-devel
-        - kernel-headers
-        - vagrant
-        - htop
-        - gnome-tweak-tool
-        - keepassx
-        - preload
-        - docker-ce
-        - the_silver_searcher
-        - libselinux-python
-        - dkms
-        - vim
-        - zsh
-        - php
-        - nodejs
-        - yarn
-        - python3-virtualenv
-      become: true
 
     - name: Start Docker on Boot
       systemd:
         name: docker
         enabled: yes
-      become: true
 
-    - name: Download Atom
-      get_url:
-        url: https://atom.io/download/rpm?channel=beta
-        dest: /tmp/atom.rpm
+    - name: Create bin dir
+      file:
+        path: "{{ lookup('env','HOME') }}/.local/bin"
+        state: directory
 
-    - name: Install atom
-      dnf:
-        name: /tmp/atom.rpm
-        state: present
-      become: true
-
-    - name: Install VirtualBox
-      dnf:
-        name: http://download.virtualbox.org/virtualbox/rpm/fedora/26/x86_64/VirtualBox-5.2-5.2.4_119785_fedora26-1.x86_64.rpm
-        state: present
-      become: true
+    - name: Install Terraform
+      unarchive:
+        remote_src: yes
+        src: "https://releases.hashicorp.com/terraform/{{ terraform_version }}/terraform_{{ terraform_version }}_linux_amd64.zip"
+        dest: "{{ lookup('env','HOME') }}/.local/bin"
