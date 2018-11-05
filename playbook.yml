@@ -117,7 +117,15 @@
           - python3-virtualenv
           - code
           - golang
+          - groovy
+          - postgresql
+          - mysql
         state: present
+
+    - name: Install aws cli
+      pip:
+          name: awscli
+          extra_args: --user
 
     - name: Start Docker on Boot
       systemd:
@@ -134,3 +142,6 @@
         remote_src: yes
         src: "https://releases.hashicorp.com/terraform/{{ terraform_version }}/terraform_{{ terraform_version }}_linux_amd64.zip"
         dest: "{{ lookup('env','HOME') }}/.local/bin"
+    
+    - name: Allow to switch keyboard layout with Alt + Shift
+      command: gsettings set org.gnome.desktop.wm.keybindings switch-input-source "['<Alt>Shift_L']"
