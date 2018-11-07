@@ -115,6 +115,7 @@
           - nodejs
           - yarn
           - python3-virtualenv
+          - python-devel
           - code
           - golang
           - groovy
