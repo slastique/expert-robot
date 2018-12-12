@@ -18,7 +18,7 @@
     - role: gantsign.oh-my-zsh
       users:
         - username: rmamaev
-        
+
   tasks:
     - name: Remove installed Docker
       dnf:
@@ -28,7 +28,7 @@
           - docker-selinux
           - docker-engine-selinux
           - docker-engine
-        state: absent        
+        state: absent
 
     - name: Cleanup old Docker dirs
       file:
@@ -82,7 +82,7 @@
         append: yes
 
     - name: "install VS Code repo"
-      yum_repository: 
+      yum_repository:
         baseurl: "https://packages.microsoft.com/yumrepos/vscode"
         description: "Visual Studio Code repo"
         file: vscode
@@ -112,12 +112,25 @@
           - vim
           - zsh
           - php
+          - php-json
           - nodejs
           - yarn
           - python3-virtualenv
+          - python-devel
           - code
           - golang
+          - groovy
+          - postgresql
+          - mysql
+          - php-simplexml
+          - php-xdebug
+          - jq
         state: present
+
+    - name: Install aws cli
+      pip:
+          name: awscli
+          extra_args: --user
 
     - name: Start Docker on Boot
       systemd:
@@ -134,3 +147,6 @@
         remote_src: yes
         src: "https://releases.hashicorp.com/terraform/{{ terraform_version }}/terraform_{{ terraform_version }}_linux_amd64.zip"
         dest: "{{ lookup('env','HOME') }}/.local/bin"
+
+    - name: Allow to switch keyboard layout with Alt + Shift
+      command: gsettings set org.gnome.desktop.wm.keybindings switch-input-source "['<Alt>Shift_L']"
