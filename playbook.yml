@@ -131,7 +131,12 @@
       pip:
           name: awscli
           extra_args: --user
-
+          
+    - name: Install python-netaddr
+      pip:
+          name: netaddr
+          extra_args: --user
+          
     - name: Start Docker on Boot
       systemd:
         name: docker
