@@ -1,23 +1,17 @@
 - hosts: 127.0.0.1
   become: true
   vars:
-    myname: 'rmamaev'
+    myname: 'ruslan.mamaev'
     rbenv:
       env: user
       version: v1.1.1
-      default_ruby: 2.5.3
+      default_ruby: 2.6.0
       rubies:
-      - version: 2.5.3
+      - version: 2.6.0
       rbenv_plugins:
         name: "ruby-build"
-
-  roles:
-    - role: zzet.rbenv
-      rbenv_users:
-        ["{{ myname }}"]
-    - role: gantsign.oh-my-zsh
-      users:
-        - username: rmamaev
+    users:
+      - username: ruslan.mamaev
 
   tasks:
     - name: Remove installed Docker
@@ -42,7 +36,7 @@
 
     - name: Add Docker Stable Repo
       yum_repository:
-        baseurl: https://download.docker.com/linux/fedora/27/x86_64/stable
+        baseurl: https://download.docker.com/linux/fedora/29/x86_64/stable
         enabled: yes
         name: docker-ce-stable
         description: Docker CE Stable - $basearch
@@ -60,7 +54,7 @@
 
     - name: Add Yarn Repo
       yum_repository:
-        baseurl: https://download.docker.com/linux/fedora/27/x86_64/edge
+        baseurl: https://download.docker.com/linux/fedora/29/x86_64/edge
         enabled: yes
         name: docker-ce-edge
         description: Docker CE Edge - $basearch
@@ -126,27 +120,32 @@
           - php-xdebug
           - jq
           - postgresql-devel
+          - libappindicator-gtk3
+          - liberation-fonts
+          - redhat-lsb-core
         state: present
 
     - name: Install aws cli
       pip:
           name: awscli
           extra_args: --user
+          state: present
 
     - name: Install python-netaddr
       pip:
           name: netaddr
           extra_args: --user
+          state: present
 
     - name: Start Docker on Boot
       systemd:
         name: docker
         enabled: yes
 
-    - name: Create bin dir
-      file:
-        path: "{{ lookup('env','HOME') }}/.local/bin"
-        state: directory
-
     - name: Allow to switch keyboard layout with Alt + Shift
       command: gsettings set org.gnome.desktop.wm.keybindings switch-input-source "['<Alt>Shift_L']"
+
+  roles:
+    - role: rbenv
+    - role: ohmyzsh
+    
