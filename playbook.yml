@@ -1,15 +1,6 @@
 - hosts: 127.0.0.1
   become: true
   vars:
-    myname: 'ruslan.mamaev'
-    rbenv:
-      env: user
-      version: v1.1.1
-      default_ruby: 2.6.0
-      rubies:
-      - version: 2.6.0
-      rbenv_plugins:
-        name: "ruby-build"
     users:
       - username: ruslan.mamaev
 
@@ -51,15 +42,6 @@
         description: Yarn repo
         gpgcheck: yes
         gpgkey: https://dl.yarnpkg.com/rpm/pubkey.gpg
-
-    - name: Add Yarn Repo
-      yum_repository:
-        baseurl: https://download.docker.com/linux/fedora/29/x86_64/edge
-        enabled: yes
-        name: docker-ce-edge
-        description: Docker CE Edge - $basearch
-        gpgcheck: yes
-        gpgkey: https://download.docker.com/linux/fedora/gpg
 
     - name: Update cache
       shell: 'dnf makecache timer'
@@ -122,6 +104,8 @@
           - postgresql-devel
           - libappindicator-gtk3
           - liberation-fonts
+          - mozilla-fira-mono-fonts
+          - levien-inconsolata-fonts
           - redhat-lsb-core
         state: present
 
@@ -146,6 +130,4 @@
       command: gsettings set org.gnome.desktop.wm.keybindings switch-input-source "['<Alt>Shift_L']"
 
   roles:
-    - role: rbenv
     - role: ohmyzsh
-    
