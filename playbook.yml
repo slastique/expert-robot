@@ -79,8 +79,6 @@
           - kernel-headers
           - htop
           - gnome-tweak-tool
-          - keepassx
-          - preload
           - docker-ce
           - the_silver_searcher
           - libselinux-python
