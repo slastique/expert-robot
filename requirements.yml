@@ -1,7 +1,3 @@
-- src: https://github.com/zzet/ansible-rbenv-role
-  version: master
-  name: rbenv
-
 - src: https://github.com/gantsign/ansible-role-oh-my-zsh
   version: master
   name: ohmyzsh
