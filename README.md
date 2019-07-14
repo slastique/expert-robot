@@ -8,4 +8,4 @@ Ansible roles to provision my laptop with Fedora 29
 
 
 ## How to run
-`ansible-playbook playbook.yml -b -K`
+`ansible-playbook playbook.yml -e username=your_username -K`
