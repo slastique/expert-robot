@@ -185,6 +185,10 @@
             - fonts-inconsolata
             - pip
           state: present
+
+      - name: Allow to switch keyboard layout with Alt + Shift
+        command: gsettings set org.gnome.desktop.wm.keybindings switch-input-source "['<Alt>Shift_L']"
+
       when: ansible_facts['distribution'] == 'Debian'
 
     - name: Install aws cli
@@ -197,6 +201,8 @@
       systemd:
         name: docker
         enabled: yes
+
+
 
   roles:
     - role: ohmyzsh
