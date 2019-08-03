@@ -37,6 +37,8 @@
 
       - name: Update cache
         shell: 'dnf makecache timer'
+        args:
+          warn: false
 
       - name: "install VS Code repo"
         yum_repository:
@@ -77,6 +79,9 @@
             - mozilla-fira-mono-fonts
             - levien-inconsolata-fonts
             - redhat-lsb-core
+            - tmux
+            - slirp4netns
+            - fuse-overlayfs
           state: present
       when: ansible_facts['distribution'] == 'Fedora'
 
