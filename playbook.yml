@@ -2,19 +2,7 @@
   connection: local
   become: true
 
-
   tasks:
-    - name: Create Docker Group
-      group:
-        name: docker
-        state: present
-
-    - name: Add me to docker group
-      user:
-        name: "{{ username }}"
-        groups: docker
-        append: yes
-
     - name: upgrade all packages
       package:
         name: "*"
@@ -47,26 +35,10 @@
           path: /var/lib/docker/
           state: absent
 
-      - name: Add Docker Stable Repo
-        yum_repository:
-          baseurl: https://download.docker.com/linux/fedora/29/x86_64/stable
-          enabled: yes
-          name: docker-ce-stable
-          description: Docker CE Stable - $basearch
-          gpgcheck: yes
-          gpgkey: https://download.docker.com/linux/fedora/gpg
-
-      - name: Add Docker Edge Repo
-        yum_repository:
-          baseurl: https://dl.yarnpkg.com/rpm/
-          enabled: yes
-          name: yarn-repo
-          description: Yarn repo
-          gpgcheck: yes
-          gpgkey: https://dl.yarnpkg.com/rpm/pubkey.gpg
-
       - name: Update cache
         shell: 'dnf makecache timer'
+        args:
+          warn: false
 
       - name: "install VS Code repo"
         yum_repository:
@@ -85,13 +57,11 @@
             - kernel-headers
             - htop
             - gnome-tweak-tool
-            - docker-ce
             - the_silver_searcher
             - libselinux-python
             - dkms
             - vim
             - zsh
-            - php
             - php-json
             - python3-virtualenv
             - python-devel
@@ -109,6 +79,9 @@
             - mozilla-fira-mono-fonts
             - levien-inconsolata-fonts
             - redhat-lsb-core
+            - tmux
+            - slirp4netns
+            - fuse-overlayfs
           state: present
       when: ansible_facts['distribution'] == 'Fedora'
 
@@ -135,20 +108,10 @@
           update_cache: yes
           state: present
 
-      - name: Add an Docker signing key, will not download if present
-        apt_key:
-          url: https://download.docker.com/linux/debian/gpg
-          state: present
-
       - name: Add an VSCode signing key, will not download if present
         apt_key:
           url: "https://packages.microsoft.com/keys/microsoft.asc"
           state: present
-
-      - name: Add Docker Stable Repo
-        apt_repository:
-          repo: "deb [arch=amd64] https://download.docker.com/linux/debian buster stable"
-          filename: docker-ce-stable
 
       - name: "install VS Code repo"
         apt_repository:
@@ -162,9 +125,6 @@
             - linux-libc-dev
             - htop
             - gnome-tweak-tool
-            - docker-ce
-            - docker-ce-cli
-            - containerd.io
             - silversearcher-ag
             - dkms
             - vim
@@ -186,9 +146,6 @@
             - pip
           state: present
 
-      - name: Allow to switch keyboard layout with Alt + Shift
-        command: gsettings set org.gnome.desktop.wm.keybindings switch-input-source "['<Alt>Shift_L']"
-
       when: ansible_facts['distribution'] == 'Debian'
 
     - name: Install aws cli
@@ -196,13 +153,6 @@
           name: awscli
           extra_args: --user
           state: present
-
-    - name: Start Docker on Boot
-      systemd:
-        name: docker
-        enabled: yes
-
-
 
   roles:
     - role: ohmyzsh
