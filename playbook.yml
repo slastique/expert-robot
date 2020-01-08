@@ -67,13 +67,9 @@
             - python-devel
             - code
             - golang
-            - groovy
-            - postgresql
-            - mysql
             - php-simplexml
             - php-xdebug
             - jq
-            - postgresql-devel
             - libappindicator-gtk3
             - liberation-fonts
             - mozilla-fira-mono-fonts
@@ -82,7 +78,18 @@
             - tmux
             - slirp4netns
             - fuse-overlayfs
+            - bridge-utils
+            - libvirt
+            - virt-install
+            - qemu-kvm
           state: present
+
+      - name: Enable systemd services
+        systemd:
+          name: libvirtd
+          state: started
+          enabled: yes
+
       when: ansible_facts['distribution'] == 'Fedora'
 
     - name: Configure Debian OS
