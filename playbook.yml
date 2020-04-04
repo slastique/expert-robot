@@ -81,6 +81,8 @@
             - libvirt
             - virt-install
             - qemu-kvm
+            - java-latest-openjdk
+            - java-latest-openjdk-devel
           state: present
 
       - name: Enable systemd services
