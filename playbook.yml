@@ -58,12 +58,11 @@
             - htop
             - gnome-tweak-tool
             - the_silver_searcher
-            - libselinux-python
+            - python3-libselinux
             - dkms
             - vim
             - zsh
             - php-json
-            - python3-virtualenv
             - python-devel
             - code
             - golang
