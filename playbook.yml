@@ -1,168 +1,48 @@
+---
 - hosts: 127.0.0.1
   connection: local
-  become: true
+#  become: true
+  gather_facts: true
 
   tasks:
     - name: upgrade all packages
-      package:
+      ansible.builtin.package:
         name: "*"
         state: latest
+      when: ansible_facts['distribution'] != 'MacOSX'
 
     - name: Configure Fedora OS
-      block:
-      - name: install dnf plugins
-        dnf:
-          name: dnf-plugins-core
-          state: present
-
-      - name: Remove installed Docker
-        dnf:
-          name:
-            - docker
-            - docker-common
-            - docker-selinux
-            - docker-engine-selinux
-            - docker-engine
-            - docker-client
-            - docker-client-latest
-            - docker-latest
-            - docker-latest-logrotate
-            - docker-logrotate
-          state: absent
-
-      - name: Cleanup old Docker dirs
-        file:
-          path: /var/lib/docker/
-          state: absent
-
-      - name: Update cache
-        shell: 'dnf makecache timer'
-        args:
-          warn: false
-
-      - name: "install VS Code repo"
-        yum_repository:
-          baseurl: "https://packages.microsoft.com/yumrepos/vscode"
-          description: "Visual Studio Code repo"
-          file: vscode
-          gpgcheck: true
-          gpgkey: "https://packages.microsoft.com/keys/microsoft.asc"
-          name: code
-
-      - name: Install required packages
-        dnf:
-          name:
-            - make
-            - kernel-devel
-            - kernel-headers
-            - htop
-            - gnome-tweak-tool
-            - the_silver_searcher
-            - python3-libselinux
-            - dkms
-            - vim
-            - zsh
-            - php-json
-            - python-devel
-            - code
-            - golang
-            - php-simplexml
-            - php-xdebug
-            - jq
-            - libappindicator-gtk3
-            - liberation-fonts
-            - mozilla-fira-mono-fonts
-            - levien-inconsolata-fonts
-            - redhat-lsb-core
-            - tmux
-            - slirp4netns
-            - fuse-overlayfs
-            - bridge-utils
-            - libvirt
-            - virt-install
-            - qemu-kvm
-            - java-latest-openjdk
-            - java-latest-openjdk-devel
-          state: present
-
-      - name: Enable systemd services
-        systemd:
-          name: libvirtd
-          state: started
-          enabled: yes
-
+      ansible.builtin.include_tasks: playbooks/fedora.yml
       when: ansible_facts['distribution'] == 'Fedora'
 
     - name: Configure Debian OS
-      block:
-      - name: Remove installed Docker
-        apt:
-          name:
-            - docker
-            - docker-engine
-            - docker.io
-            - containerd
-            - runc
-          state: absent
-
-      - name: Install packages for apt
-        apt:
-          name:
-            - apt-transport-https
-            - ca-certificates
-            - curl
-            - gnupg2
-            - software-properties-common
-          update_cache: yes
-          state: present
-
-      - name: Add an VSCode signing key, will not download if present
-        apt_key:
-          url: "https://packages.microsoft.com/keys/microsoft.asc"
-          state: present
-
-      - name: "install VS Code repo"
-        apt_repository:
-          repo: "deb https://packages.microsoft.com/repos/vscode stable main"
-          filename: vscode
-
-      - name: Install required packages
-        apt:
-          name:
-            - make
-            - linux-libc-dev
-            - htop
-            - gnome-tweak-tool
-            - silversearcher-ag
-            - dkms
-            - vim
-            - zsh
-            - php
-            - php-json
-            - python3-virtualenv
-            - python-dev
-            - python3-dev
-            - code
-            - golang
-            - groovy
-            - php-simplexml
-            - php-xdebug
-            - jq
-            - fonts-liberation
-            - fonts-firacode
-            - fonts-inconsolata
-            - pip
-          state: present
-
+      ansible.builtin.include_tasks: playbooks/debian.yml
       when: ansible_facts['distribution'] == 'Debian'
 
-    - name: Install aws cli
-      pip:
-          name: awscli
-          extra_args: --user
-          state: present
+    - name: Configure MacOS
+      ansible.builtin.include_tasks: playbooks/macos.yml
+      when: ansible_facts['distribution'] == 'MacOSX'
 
-  roles:
-    - role: ohmyzsh
-      users:
-        - username: "{{ username }}"
+    - name: Configure Shell
+      block:
+        - name: Configure zsh
+          ansible.builtin.copy:
+            src: "files/{{ ansible_facts['distribution'] }}.zshrc"
+            dest: '~/.zshrc'
+
+        - name: Configure Bash
+          ansible.builtin.copy:
+            src: "files/{{ ansible_facts['distribution'] }}.bashrc"
+            dest: '~/.bashrc'
+
+        - name: Configure Vim
+          block:
+            - name: Install vim-airline plugin
+              ansible.builtin.git:
+                repo: https://github.com/vim-airline/vim-airline
+                dest: '~/.vim/pack/dist/start/vim-airline'
+
+            - name: Configure Vim
+              ansible.builtin.copy:
+                src: "files/{{ ansible_facts['distribution'] }}.vimrc"
+                dest: '~/.vimrc'

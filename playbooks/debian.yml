@@ -1,0 +1,63 @@
+---
+- name: Configure Debian OS
+  block:
+    - name: Remove installed Docker
+      apt:
+        name:
+          - docker
+          - docker-engine
+          - docker.io
+          - containerd
+          - runc
+        state: absent
+
+    - name: Install packages for apt
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg2
+          - software-properties-common
+        update_cache: yes
+        state: present
+
+    - name: Add an VSCode signing key, will not download if present
+      apt_key:
+        url: "https://packages.microsoft.com/keys/microsoft.asc"
+        state: present
+
+    - name: "install VS Code repo"
+      apt_repository:
+        repo: "deb https://packages.microsoft.com/repos/vscode stable main"
+        filename: vscode
+
+    - name: Install required packages
+      apt:
+        name:
+          - make
+          - linux-libc-dev
+          - htop
+          - gnome-tweak-tool
+          - silversearcher-ag
+          - dkms
+          - vim
+          - zsh
+          - php
+          - php-json
+          - python3-virtualenv
+          - python-dev
+          - python3-dev
+          - code
+          - golang
+          - groovy
+          - php-simplexml
+          - php-xdebug
+          - jq
+          - fonts-liberation
+          - fonts-firacode
+          - fonts-inconsolata
+          - pip
+        state: present
+
+  when: ansible_facts['distribution'] == 'Debian'
