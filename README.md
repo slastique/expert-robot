@@ -1,11 +1,13 @@
 # expert-robot
 
-Ansible roles to provision my laptop with Fedora and Debian
+Ansible playbooks to provision my laptop with Fedora and MacOS
 
 ## Prerequisites
 
-`ansible-galaxy install -r requirements.yml`
+* Python 3
+* brew (for MacOS)
 
 ## How to run
 
-`ansible-playbook playbook.yml -e username=your_username -K`
+* add your github keys to ssh-agent (to clone oh my zsh completions plugin)
+* run provision.sh

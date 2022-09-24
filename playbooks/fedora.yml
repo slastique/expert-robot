@@ -1,0 +1,85 @@
+---
+- name: Configure Fedora OS
+  block:
+    - name: install dnf plugins
+      dnf:
+        name: dnf-plugins-core
+        state: present
+
+    - name: Remove installed Docker
+      dnf:
+        name:
+          - docker
+          - docker-common
+          - docker-selinux
+          - docker-engine-selinux
+          - docker-engine
+          - docker-client
+          - docker-client-latest
+          - docker-latest
+          - docker-latest-logrotate
+          - docker-logrotate
+        state: absent
+
+    - name: Cleanup old Docker dirs
+      file:
+        path: /var/lib/docker/
+        state: absent
+
+    - name: Update cache
+      shell: 'dnf makecache timer'
+      args:
+        warn: false
+
+    - name: "install VS Code repo"
+      yum_repository:
+        baseurl: "https://packages.microsoft.com/yumrepos/vscode"
+        description: "Visual Studio Code repo"
+        file: vscode
+        gpgcheck: true
+        gpgkey: "https://packages.microsoft.com/keys/microsoft.asc"
+        name: code
+
+    - name: Install required packages
+      dnf:
+        name:
+          - make
+          - kernel-devel
+          - kernel-headers
+          - htop
+          - gnome-tweak-tool
+          - the_silver_searcher
+          - python3-libselinux
+          - dkms
+          - vim
+          - zsh
+          - php-json
+          - python-devel
+          - code
+          - golang
+          - php-simplexml
+          - php-xdebug
+          - jq
+          - libappindicator-gtk3
+          - liberation-fonts
+          - mozilla-fira-mono-fonts
+          - levien-inconsolata-fonts
+          - redhat-lsb-core
+          - tmux
+          - slirp4netns
+          - fuse-overlayfs
+          - bridge-utils
+          - libvirt
+          - virt-install
+          - qemu-kvm
+          - java-latest-openjdk
+          - java-latest-openjdk-devel
+        state: present
+
+    - name: Enable systemd services
+      systemd:
+        name: libvirtd
+        state: started
+        enabled: yes
+
+  when: ansible_facts['distribution'] == 'Fedora'

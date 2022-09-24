@@ -1,0 +1,45 @@
+---
+- name: Install Oh-my-zsh
+  block:
+    - name: Download installer
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+        dest: /tmp/ohmyzsh-install.sh
+        mode: '0755'
+
+    - name: Remove Oh My Zsh directory to make installer work
+      ansible.builtin.file:
+        name: "~/.oh-my-zsh"
+        state: absent
+
+    - name: Installation
+      ansible.builtin.command: /tmp/ohmyzsh-install.sh
+
+- name: Install packages with Homebrew
+  block:
+    - name: Install packages with Homebrew
+      ansible.builtin.package:
+        state: "{{ state | default('present') }}"
+        name:
+          - pyenv
+          - pyenv-virtualenv
+          - kubectl
+          - terraform-inventory
+          - gnu-tar
+          - jq
+          - tfenv
+          - vault
+          - htop
+          - kubectx
+          - krew
+          - zsh-completions
+          - kube-ps1
+          - go
+
+    - name: Force rebuild zsh
+      ansible.builtin.command: "rm -f ~/.zcompdump; compinit"
+
+- name: Install kubectl aliases
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/ahmetb/kubectl-aliases/master/.kubectl_aliases
+    dest: '~/.kubectl-aliases'
