@@ -1,5 +1,5 @@
 # If you come from bash you might have to change your $PATH.
-export PATH=$HOME/bin:/usr/local/bin:/opt/homebrew/bin:$HOME/.local/bin:$PATH
+export PATH=$HOME/bin:/usr/local/bin:$PYENV_ROOT/bin:/opt/homebrew/bin:/opt/homebrew/opt/postgresql@11/bin:$HOME/.local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
@@ -103,6 +103,8 @@ source $ZSH/oh-my-zsh.sh
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
+export LDFLAGS="-L/opt/homebrew/opt/postgresql@11/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/postgresql@11/include"
 
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
@@ -125,6 +127,7 @@ KUBE_PS1_SYMBOL_ENABLE=false
 source "$(brew --prefix)/opt/kube-ps1/share/kube-ps1.sh"
 PS1='$(kube_ps1)'$PS1
 
+export PYENV_ROOT="$HOME/.pyenv"
 eval "$(pyenv init -)"
 
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
