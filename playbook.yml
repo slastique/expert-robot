@@ -1,7 +1,6 @@
 ---
 - hosts: 127.0.0.1
   connection: local
-#  become: true
   gather_facts: true
 
   tasks:
@@ -23,17 +22,42 @@
       ansible.builtin.include_tasks: playbooks/macos.yml
       when: ansible_facts['distribution'] == 'MacOSX'
 
-    - name: Configure Shell
+    - name: Configure Environment
       block:
         - name: Configure zsh
           ansible.builtin.copy:
             src: "files/{{ ansible_facts['distribution'] }}.zshrc"
             dest: '~/.zshrc'
 
+        - name: Configure zsh
+          block:
+          - name: Create zsh completions dir
+            ansible.builtin.file:
+              name: '~/.oh-my-zsh/completions'
+              state: directory
+              mode: '0755'
+
+          - name: Download kns completions
+            ansible.builtin.get_url:
+              url: https://raw.githubusercontent.com/ahmetb/kubectx/master/completion/_kubens.zsh
+              dest: '~/.oh-my-zsh/completions/_kubens.zsh'
+              mode: '0755'
+
+          - name: Download ktx completions
+            ansible.builtin.get_url:
+              url: https://raw.githubusercontent.com/ahmetb/kubectx/master/completion/_kubectx.zsh
+              dest: '~/.oh-my-zsh/completions/_kubectx.zsh'
+              mode: '0755'
+
         - name: Configure Bash
           ansible.builtin.copy:
             src: "files/{{ ansible_facts['distribution'] }}.bashrc"
             dest: '~/.bashrc'
+
+        - name: Setup Terraform env
+          ansible.builtin.file:
+            name: '~/.terraform.d/plugin-cache'
+            state: directory
 
         - name: Configure Vim
           block:

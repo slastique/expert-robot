@@ -24,7 +24,6 @@
           - pyenv
           - pyenv-virtualenv
           - kubectl
-          - terraform-inventory
           - gnu-tar
           - jq
           - tfenv
@@ -35,6 +34,10 @@
           - zsh-completions
           - kube-ps1
           - go
+          - azure-cli
+          - 'postgresql@11'
+          - helm
+          - the_silver_searcher
 
     - name: Force rebuild zsh
       ansible.builtin.command: "rm -f ~/.zcompdump; compinit"
@@ -42,4 +45,7 @@
 - name: Install kubectl aliases
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/ahmetb/kubectl-aliases/master/.kubectl_aliases
-    dest: '~/.kubectl-aliases'
+    dest: '~/.kubectl_aliases'
+
+- name: Use plain text docs in TextEdit by default
+  ansible.builtin.command: 'defaults write com.apple.TextEdit NSShowAppCentricOpenPanelInsteadOfUntitledFile -bool false'
