@@ -23,6 +23,7 @@
         name:
           - pyenv
           - pyenv-virtualenv
+          - kubectx
           - kubectl
           - gnu-tar
           - jq

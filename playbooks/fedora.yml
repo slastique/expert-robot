@@ -28,8 +28,6 @@
 
     - name: Update cache
       shell: 'dnf makecache timer'
-      args:
-        warn: false
 
     - name: "install VS Code repo"
       yum_repository:
@@ -39,6 +37,15 @@
         gpgcheck: true
         gpgkey: "https://packages.microsoft.com/keys/microsoft.asc"
         name: code
+
+    - name: "install Kubernetes repo"
+      yum_repository:
+        baseurl: "https://pkgs.k8s.io/core:/stable:/v1.28/rpm/"
+        description: "Kubernetes Package Repo"
+        file: kubernetes
+        gpgcheck: true
+        gpgkey: "https://pkgs.k8s.io/core:/stable:/v1.28/rpm/repodata/repomd.xml.key"
+        name: kubernetes
 
     - name: Install required packages
       dnf:
@@ -53,33 +60,32 @@
           - dkms
           - vim
           - zsh
-          - php-json
           - python-devel
           - code
           - golang
-          - php-simplexml
-          - php-xdebug
           - jq
-          - libappindicator-gtk3
           - liberation-fonts
           - mozilla-fira-mono-fonts
           - levien-inconsolata-fonts
           - redhat-lsb-core
           - tmux
-          - slirp4netns
-          - fuse-overlayfs
-          - bridge-utils
-          - libvirt
-          - virt-install
-          - qemu-kvm
-          - java-latest-openjdk
-          - java-latest-openjdk-devel
+          - podman
+          - buildah
+          - kubectl
         state: present
 
-    - name: Enable systemd services
-      systemd:
-        name: libvirtd
-        state: started
-        enabled: yes
+    - name: Install kubectx & kubens tools
+      block:
+        - name: Install kubectx
+          ansible.builtin.get_url:
+            url: https://raw.githubusercontent.com/ahmetb/kubectx/master/kubectx
+            dest: "~/.local/bin"
+            mode: '0755'
+
+        - name: Install kubens
+          ansible.builtin.get_url:
+            url: https://raw.githubusercontent.com/ahmetb/kubectx/master/kubens
+            dest: "~/.local/bin"
+            mode: '0755'
 
   when: ansible_facts['distribution'] == 'Fedora'

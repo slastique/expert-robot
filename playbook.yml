@@ -22,6 +22,23 @@
       ansible.builtin.include_tasks: playbooks/macos.yml
       when: ansible_facts['distribution'] == 'MacOSX'
 
+  # TODO: make it work for Fedora
+    # - name: Install Oh-my-zsh
+    #   block:
+    #     - name: Download installer
+    #       ansible.builtin.get_url:
+    #         url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+    #         dest: /tmp/ohmyzsh-install.sh
+    #         mode: '0755'
+
+    #     - name: Remove Oh My Zsh directory to make installer work
+    #       ansible.builtin.file:
+    #         name: "~/.oh-my-zsh"
+    #         state: absent
+
+    #     - name: Installation
+    #       ansible.builtin.command: /tmp/ohmyzsh-install.sh
+
     - name: Configure Environment
       block:
         - name: Configure zsh
@@ -68,5 +85,10 @@
 
             - name: Configure Vim
               ansible.builtin.copy:
-                src: "files/{{ ansible_facts['distribution'] }}.vimrc"
+                src: "files/.vimrc"
                 dest: '~/.vimrc'
+
+        - name: Install kubectl aliases
+          ansible.builtin.get_url:
+            url: https://raw.githubusercontent.com/ahmetb/kubectl-aliases/master/.kubectl_aliases
+            dest: '~/.kubectl_aliases'
